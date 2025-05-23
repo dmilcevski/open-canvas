@@ -14,9 +14,15 @@ export function extractUrls(text: string): string[] {
   });
 
   // Then look for any remaining plain URLs in the text
-  const plainUrlRegex = /https?:\/\/[^\s<\]]+(?:[^<.,:;"'\]\s)]|(?=\s|$))/g;
+  // Match any remaining plain URLs. We'll trim trailing punctuation
+  // since URLs followed by punctuation (e.g. "," or ")") should not
+  // include those characters.
+  const plainUrlRegex = /https?:\/\/\S+/g;
   const plainUrls = processedText.match(plainUrlRegex) || [];
-  plainUrls.forEach((url) => urls.add(url));
+  plainUrls.forEach((url) => {
+    const cleaned = url.replace(/[.,:;"'\)\]]+$/u, "");
+    urls.add(cleaned);
+  });
 
   return Array.from(urls);
 }
